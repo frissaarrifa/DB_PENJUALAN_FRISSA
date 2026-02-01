@@ -2,7 +2,7 @@
 include 'header.php';
 include '../koneksi.php';
 
-// cek parameter id
+
 if (!isset($_GET['id'])) {
     header("location:barang.php?pesan=id_tidak_ada");
     exit;
@@ -10,7 +10,7 @@ if (!isset($_GET['id'])) {
 
 $id = $_GET['id'];
 
-// ambil data barang
+
 $data = mysqli_query($koneksi, "SELECT * FROM barang WHERE id_barang='$id'");
 
 if (mysqli_num_rows($data) == 0) {

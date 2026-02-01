@@ -1,33 +1,38 @@
 <?php
 session_start();
-if (isset($_SESSION['user_status'])) {
-    if ($_SESSION['user_status'] == 1) {
-        header("Location: admin/index.php");
-        exit;
-    } elseif ($_SESSION['user_status'] == 2) {
-        header("Location: kasir/index.php");
-        exit;
+include 'koneksi.php';
+
+$username = $_POST['username'];
+$password = md5($_POST['password']); 
+
+
+$data = mysqli_query($koneksi,
+    "SELECT * FROM user 
+     WHERE username='$username' 
+     AND password='$password'"
+);
+
+$cek = mysqli_num_rows($data);
+
+if ($cek > 0) {
+
+    $d = mysqli_fetch_assoc($data);
+
+    $_SESSION['user_id']     = $d['user_id'];
+    $_SESSION['username']    = $d['username'];
+    $_SESSION['user_status'] = $d['user_status'];
+    $_SESSION['status']      = "login";
+
+  
+    if ($d['user_status'] == 1) {
+        header("location:admin/index.php");
     }
+   
+    else {
+        header("location:user/index.php");
+    }
+
+} else {
+    header("location:index.php?pesan=gagal");
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Login Sistem Penjualan</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h2>Login Sistem Penjualan</h2>
-    <form action="login_proses.php" method="POST">
-        <label>Username:</label>
-        <input type="text" name="username" required>
-
-        <label>Password:</label>
-        <input type="password" name="password" required>
-
-        <button type="submit" name="login">Login</button>
-    </form>
-</body>
-</html>
