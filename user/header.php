@@ -39,6 +39,9 @@ if ($_SESSION['user_status'] != 2) {
                     <i class="glyphicon glyphicon-shopping-cart"></i> Penjualan
                 </a>
             </li>
+
+            <li><a href="laporan.php"><i class="glyphicon glyphicon-list-alt"></i>Laporan</a></li>
+
         </ul>
 
         <ul class="nav navbar-nav navbar-right">

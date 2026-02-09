@@ -15,6 +15,7 @@ include '../koneksi.php';
             <a href="penjualan_tambah.php" class="btn btn-info pull-right" style="margin-bottom:10px;">
                 <i class="glyphicon glyphicon-plus"></i> Tambah Penjualan
             </a>
+            
 
             <table class="table table-bordered table-striped">
                 <thead>

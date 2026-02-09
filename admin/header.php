@@ -56,12 +56,17 @@ if ($_SESSION['status'] != "login") {
                     </a>
                 </li>
 
+                <li><a href="laporan.php"><i class="glyphicon glyphicon-list-alt"></i>Laporan</a></li>
+
+
                 <?php if ($_SESSION['user_status'] == 1) { ?>
                 <li>
                     <a href="user.php">
                         <i class="glyphicon glyphicon-user"></i> User
                     </a>
                 </li>
+
+                
                 <?php } ?>
 
             </ul>
