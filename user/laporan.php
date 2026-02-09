@@ -3,124 +3,79 @@ include 'header.php';
 include '../koneksi.php';
 ?>
 
-<style>
-@media print {
-    button, form, a.btn { display: none; }
-}
-</style>
+<div class="container">
+    <div class="panel">
+        <div class="panel-heading">
+            <h4>Filter Laporan Penjualan</h4>
+        </div>
+        <div class="panel-body">
+            <form method="get">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Dari Tanggal</th>
+                        <th>Sampai Tanggal</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td><input type="date" name="tgl_dari" class="form-control" required></td>
+                        <td><input type="date" name="tgl_sampai" class="form-control" required></td>
+                        <td><input type="submit" value="Filter" class="btn btn-primary"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
 
-<div class="container mt-4">
-
-<div class="card card-modern shadow-sm card-animate">
-<div class="card-body">
-
-<h3 class="mb-4 judul-anim">
-<i class="glyphicon glyphicon-list-alt"></i>
-Laporan Penjualan
-</h3>
-
-<form method="get" class="mb-3">
-    Dari :
-    <input type="date" name="dari" value="<?= $_GET['dari'] ?? '' ?>">
-    Sampai :
-    <input type="date" name="sampai" value="<?= $_GET['sampai'] ?? '' ?>">
-    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-    <button type="button" onclick="window.print()" class="btn btn-sm btn-success">
-        Cetak Laporan
-    </button>
-</form>
-
-<div class="table-responsive table-animate">
-
-<table class="table table-bordered table-hover align-middle">
-
-<thead>
-<tr class="text-center">
-<th width="5%">No</th>
-<th width="20%">Tanggal</th>
-<th>Barang</th>
-<th width="20%">Total</th>
-<th width="15%">Aksi</th> 
-</tr>
-</thead>
-
-<tbody>
-
-<?php
-$no = 1;
-$total_semua = 0;
-$where = "";
-
-if (isset($_GET['dari']) && isset($_GET['sampai']) && $_GET['dari'] != "" && $_GET['sampai'] != "") {
-    $dari   = $_GET['dari'];
-    $sampai = $_GET['sampai'];
-    $where  = "WHERE DATE(p.tgl_jual) BETWEEN '$dari' AND '$sampai'";
-}
-
-$query = mysqli_query($koneksi, "
-    SELECT p.*, b.nama_barang
-    FROM penjualan p
-    JOIN barang b ON p.id_barang = b.id_barang
-    $where
-    ORDER BY p.tgl_jual DESC
-");
-
-if (mysqli_num_rows($query) > 0) {
-
-while ($d = mysqli_fetch_assoc($query)) {
-
-$total_semua += $d['total_harga'];
+<?php if (isset($_GET['tgl_dari'])) { 
+    $dari = $_GET['tgl_dari'];
+    $sampai = $_GET['tgl_sampai'];
 ?>
+    <div class="panel">
+        <div class="panel-heading">
+            <h4>Laporan Penjualan  
+                <b><?php echo $dari; ?></b> s/d <b><?php echo $sampai; ?></b>
+            </h4>
+        </div>
+        <div class="panel-body">
 
-<tr>
-<td class="text-center"><?= $no++ ?></td>
+        <a target="_blank" href="invoice_cetak.php"class="btn btn-primary"><i class="glyphicon glyphicon-print"></i> Cetak </a>
 
-<td class="text-center">
-<?= date('d M Y', strtotime($d['tgl_jual'])) ?>
-</td>
+            <br><br>
 
-<td><?= $d['nama_barang'] ?></td>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>No</th>
+                    <th>Invoice</th>
+                    <th>Tanggal</th>
+                    <th>Barang</th>
+                    <th>Kasir</th>
+                    <th>Total Harga</th>
+                </tr>
 
-<td>
-<b>Rp <?= number_format($d['total_harga'],0,',','.') ?></b>
-</td>
+                <?php
+                $no = 1;
+                $data = mysqli_query($koneksi,"
+                    SELECT * FROM penjualan 
+                    JOIN barang ON penjualan.id_barang = barang.id_barang
+                    JOIN user ON penjualan.user_id = user.user_id
+                    WHERE tgl_jual BETWEEN '$dari' AND '$sampai'
+                    ORDER BY id_jual DESC
+                ");
 
-<td class="text-center">
-<?php
-echo '<a href="invoice.php?id='.$d['id_jual'].'" target="_blank" class="btn btn-sm btn-info">Cetak Nota</a>';
-?>
-</td>
-</tr>
+                while ($d = mysqli_fetch_array($data)) {
+                ?>
+                <tr>
+                    <td><?php echo $no++; ?></td>
+                    <td>INV-<?php echo $d['id_jual']; ?></td>
+                    <td><?php echo $d['tgl_jual']; ?></td>
+                    <td><?php echo $d['nama_barang']; ?></td>
+                    <td><?php echo $d['user_nama']; ?></td>
+                    <td><?php echo "Rp. ".number_format($d['total_harga']); ?></td>
+                </tr>
+                <?php } ?>
+            </table>
 
+        </div>
+    </div>
 <?php } ?>
-
-<tr style="background:#F1E3D3;">
-<td colspan="3" class="text-end">
-<b>Total Semua</b>
-</td>
-
-<td colspan="2">
-<b class="total-glow">
-Rp <?= number_format($total_semua,0,',','.') ?>
-</b>
-</td>
-</tr>
-
-<?php } else { ?>
-
-<tr>
-<td colspan="5" class="text-center text-muted">
-Belum ada data penjualan
-</td>
-</tr>
-
-<?php } ?>
-
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-
 </div>

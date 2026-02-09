@@ -1,59 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Invoice Penjualan</title>
+    <link rel="stylesheet" type="text/css" href="../asset/css/bootstrap.css">
+</head>
+<body>
+
 <?php
+session_start();
+if ($_SESSION['status'] != "login") {
+    header("location:../index.php?pesan=belum_login");
+    exit;
+}
+
 include '../koneksi.php';
 
 if (!isset($_GET['id'])) {
-    echo "ID transaksi tidak ditemukan";
-    exit;
+    die("ID penjualan tidak ditemukan");
 }
 
 $id = $_GET['id'];
 
-$query = mysqli_query($koneksi, "
-    SELECT 
-        p.*, 
-        b.nama_barang, 
-        u.username,
-        p.id_jual AS id_penjualan
-    FROM penjualan p
-    JOIN barang b ON p.id_barang = b.id_barang
-    JOIN user u ON p.user_id = u.user_id
-    WHERE p.id_jual = '$id'
+$penjualan = mysqli_query($koneksi, "
+    SELECT penjualan.*, barang.nama_barang, barang.harga_jual, user.user_nama
+    FROM penjualan
+    JOIN barang ON penjualan.id_barang = barang.id_barang
+    JOIN user ON penjualan.user_id = user.user_id
+    WHERE penjualan.id_jual = '$id'
 ");
 
-$data = mysqli_fetch_assoc($query);
+$p = mysqli_fetch_array($penjualan);
 
-if (!$data) {
-    echo "Data transaksi tidak ditemukan";
-    exit;
+if (!$p) {
+    die("Data penjualan tidak ditemukan");
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Invoice Penjualan Frissa</title>
-</head>
-<body onload="window.print()">
+<div class="col-md-10 col-md-offset-1">
 
-<h2>NOTA / INVOICE</h2>
-<hr>
+    <center>
+        <h2>TOKO RPL</h2>
+    </center>
 
-<p>Kasir : <?= $data['username']; ?></p>
-<p>Tanggal : <?= date('d M Y H:i', strtotime($data['tgl_jual'])); ?></p>
+    <table class="table">
+        <tr>
+            <th width="20%">No. Invoice</th>
+            <th>:</th>
+            <th>INV-<?php echo $p['id_jual']; ?></th>
+        </tr>
+        <tr>
+            <th>Tanggal Jual</th>
+            <th>:</th>
+            <th><?php echo $p['tgl_jual']; ?></th>
+        </tr>
+        <tr>
+            <th>Nama Kasir</th>
+            <th>:</th>
+            <th><?php echo $p['user_nama']; ?></th>
+        </tr>
+    </table>
 
-<table border="1" cellpadding="8" cellspacing="0" width="100%">
-<tr>
-    <th>Barang</th>
-    <th>Total Harga</th>
-</tr>
-<tr>
-    <td><?= $data['nama_barang']; ?></td>
-    <td>Rp <?= number_format($data['total_harga'],0,',','.'); ?></td>
-</tr>
-</table>
+    <br>
 
-<br>
-<b>Total Bayar : Rp <?= number_format($data['total_harga'],0,',','.'); ?></b>
+    <h4 class="text-center">Detail Penjualan</h4>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Nama Barang</th>
+            <th width="20%">Harga Jual</th>
+            <th width="20%">Total Harga</th>
+        </tr>
+        <tr>
+            <td><?php echo $p['nama_barang']; ?></td>
+            <td>Rp. <?php echo number_format($p['harga_jual']); ?></td>
+            <td>Rp. <?php echo number_format($p['total_harga']); ?></td>
+        </tr>
+    </table>
+
+    <br>
+    <p class="text-center"><i>"Terima Kasih Atas Pembelian Anda"</i></p>
+
+</div>
+
+<script type="text/javascript">
+    window.print();
+</script>
 
 </body>
 </html>
